@@ -6,11 +6,14 @@ using UnityEngine.UI;
 
 public class MainManager : MonoBehaviour
 {
+
     public Brick BrickPrefab;
     public int LineCount = 6;
     public Rigidbody Ball;
 
     public Text ScoreText;
+
+    public Text highScoreText;
     public GameObject GameOverText;
     
     private bool m_Started = false;
@@ -22,6 +25,9 @@ public class MainManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        DataManager.Instance.LoadHighScore();
+        AddPoint(0);
+        UpdateHighScore();
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
         
@@ -65,12 +71,29 @@ public class MainManager : MonoBehaviour
     void AddPoint(int point)
     {
         m_Points += point;
-        ScoreText.text = $"Score : {m_Points}";
+        ScoreText.text = $"{DataManager.Instance.playerName}'s Score : {m_Points}";
     }
 
     public void GameOver()
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+        UpdateHighScore();
+    }
+
+    public void UpdateHighScore() {
+        if (DataManager.Instance.highScore == 0 && m_Points == 0) {
+            highScoreText.text = "High Score : No Data";
+            return;
+        } else {
+            highScoreText.text = $"High Score : {DataManager.Instance.highScorePlayerName} : {DataManager.Instance.highScore}";
+        }
+
+
+        if (m_Points > DataManager.Instance.highScore) {
+            DataManager.Instance.highScore = m_Points;
+            DataManager.Instance.SaveHighScore();
+            highScoreText.text = $"High Score : {DataManager.Instance.playerName} : {DataManager.Instance.highScore}";
+        }
     }
 }
